@@ -62,6 +62,12 @@ services:
       - "323:323/tcp"   # Chrony Control Port (für 'chronyc')
     environment:
       - TZ=Europe/Berlin
+    # Required for time synchronization
+    cap_add:
+      - SYS_ADMIN    # Required for time adjustments
+      - CAP_SYS_TIME  # For time management operations
+    security_opt:
+      - apparmor:unconfined
     healthcheck:
       test: ["CMD", "chronyc", "tracking"]
       interval: 30s
