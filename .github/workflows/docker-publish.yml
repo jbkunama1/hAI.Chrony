@@ -8,7 +8,8 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  # GitHub repo "hAI.Chrony" contains uppercase -> lowercase conversion for GHCR
+  IMAGE_NAME: jbkunama1/haichrony
 
 jobs:
   build-and-push-image:

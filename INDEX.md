@@ -6,7 +6,7 @@ Dieses Dokument dient als Index für das hAI.Chrony Projekt – einen **NTP-Zeit
 - [README.md](README.md) – Übersicht, Features und Setup-Anleitung (Server/Client Dual-Mode).
 - [Dockerfile](Dockerfile) – Container-Build-Definition mit Debian Bookworm-slim und Chrony.
 - [chrony.conf](chrony.conf) – Konfiguration als dualer Zeitserver und Client (`local stratum 10`, Upstream-Server, Debian-Pools).
-- [.github/workflows/docker-publish.yml](.github/workflows/docker-publish.yml) – CI/CD Pipeline für automatischen GHCR-Build (ghcr.io/jbkunama1/hai-chrony:latest).
+- [.github/workflows/docker-publish.yml](.github/workflows/docker-publish.yml) – CI/CD Pipeline für automatischen GHCR-Build (ghcr.io/jbkunama1/haichrony:latest).
 
 ## Kurzanleitung
 
@@ -18,7 +18,7 @@ server IP_DEINES_CHRONY_CONTAINERS iburst
 
 **Container starten** (Portainer Stack):
 - Docker Compose Stack aus `README.md` einbinden
-- GHCR: `ghcr.io/jbkunama1/hai-chrony:latest`
+- GHCR: `ghcr.io/jbkunama1/haichrony:latest`
 
 **Status prüfen**:
 - `chronyc tracking` im Container

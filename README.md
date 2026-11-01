@@ -49,7 +49,7 @@ version: '3.8'
 
 services:
   chrony:
-    image: ghcr.io/jbkunama1/hai-chrony:latest
+    image: ghcr.io/jbkunama1/haichrony:latest
     container_name: hai-chrony
     restart: unless-stopped
     ports:
