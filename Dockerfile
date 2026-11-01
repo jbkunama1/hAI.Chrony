@@ -10,6 +10,10 @@ EXPOSE 323/tcp
 
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 CMD chronyc tracking || exit 1
 
+# Required kernel capabilities for chrony time adjustments
+CAP_SYS_TIME
+SYS_ADMIN
+
 # Expects config to be mounted via volume: /etc/chrony/chrony.conf
 CMD ["sh", "-c", "mkdir -p /run/chrony /var/lib/chrony && \
                     chown -R $(id -u _chrony 2>/dev/null || id -u chrony):$(id -g _chrony 2>/dev/null || id -g chrony) /run/chrony /var/lib/chrony && \
