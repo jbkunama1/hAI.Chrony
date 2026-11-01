@@ -1,20 +1,27 @@
-version: '3.8'
-
 services:
   chrony:
     image: ghcr.io/jbkunama1/haichrony:latest
-    container_name: hai-chrony
+    container_name: highfish1_chrony
     restart: unless-stopped
+    cap_add:
+      - SYS_TIME
     ports:
-      - "123:123/udp"   # NTP Port für Client-Zeitabruf
-      - "323:323/tcp"   # Chrony Control Port (für 'chronyc')
+      - "123:123/udp"
+      - "323:323/tcp"
     environment:
       - TZ=Europe/Berlin
     volumes:
-      # Mount host chrony config
-      - /etc/chrony/chrony.conf:/etc/chrony/chrony.conf
-    healthcheck:
-      test: ["CMD", "chronyc", "tracking"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      - chrony_run:/run/chrony
+      - chrony_lib:/var/lib/chrony
+      # Optional: eigene Config statt der eingebauten
+      # - /chrony/chrony.conf:/etc/chrony.conf:ro
+    networks:
+      - highfishnetwork
+
+volumes:
+  chrony_run:
+  chrony_lib:
+
+networks:
+  highfishnetwork:
+    external: true
