@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  chrony:
+    image: ghcr.io/jbkunama1/haichrony:latest
+    container_name: hai-chrony
+    restart: unless-stopped
+    ports:
+      - "123:123/udp"   # NTP Port für Client-Zeitabruf
+      - "323:323/tcp"   # Chrony Control Port (für 'chronyc')
+    environment:
+      - TZ=Europe/Berlin
+    healthcheck:
+      test: ["CMD", "chronyc", "tracking"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    volumes:
+      - chrony_data:/var/lib/chrony
+      - chrony_run:/run/chrony
+
+volumes:
+  chrony_data:
+  chrony_run:
