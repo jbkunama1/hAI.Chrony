@@ -10,23 +10,11 @@ services:
       - "323:323/tcp"   # Chrony Control Port (für 'chronyc')
     environment:
       - TZ=Europe/Berlin
-    cap_add:
-      - SYS_ADMIN    # Required for time adjustments
-      - CAP_SYS_TIME  # For time management operations
-    security_opt:
-      - apparmor:unconfined
+    volumes:
+      # Mount host chrony config
+      - /etc/chrony/chrony.conf:/etc/chrony/chrony.conf
     healthcheck:
       test: ["CMD", "chronyc", "tracking"]
       interval: 30s
       timeout: 10s
       retries: 3
-    volumes:
-      # Mount host chrony config
-      - /etc/chrony/chrony.conf:/etc/chrony/chrony.conf
-      # Data volumes for persistence
-      - chrony_data:/var/lib/chrony
-      - chrony_run:/run/chrony
-
-volumes:
-  chrony_data:
-  chrony_run:
