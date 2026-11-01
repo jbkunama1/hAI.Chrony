@@ -8,12 +8,17 @@ Ein containerisiertes NTP-Zeitsynchronisations-Setup mit **Chrony** auf Basis vo
 - **Zeitserver & Zeitclient**: Einerseits für andere Geräte im Netzwerk als Zeitquelle verfügbar, andererseits selbst synchronisiert.
 - **Lokale Source**: `local stratum 10` aktiviert → dein Container ist für andere Devices sichtbar.
 - **Upstream-Server**: Synchronisiert sich über lokales Gateway (`192.168.178.1`) und öffentliche Debian-Pools.
+- **Host Volume Mount**: Konfiguration wird direkt vom Host via Volume gemountet (`/etc/chrony/chrony.conf`)
 - **Portainer Ready**: Läuft direkt als Stack (Docker Compose).
 - **Automatisierter GHCR Build**: GitHub Actions baut das Image bei jedem Release/Push vollautomatisch.
 
 ---
 
 ## Konfiguration & Nutzung als Zeitquelle
+
+### Konfigurationsdatei auf dem Host
+
+Die Chrony-Konfiguration liegt **auf dem Host-System** unter `/etc/chrony/chrony.conf` und wird automatisch vom Container gemountet.
 
 ### Als Zeitserver für andere Devices
 
@@ -45,9 +50,7 @@ Damit gewährleistigst du:
 Verwende diesen Stack in Portainer, um das Image direkt von GHCR zu beziehen:
 
 ```yaml
-version: 
-3.8
-
+version: '3.8'
 
 services:
   chrony:
@@ -56,11 +59,7 @@ services:
     restart: unless-stopped
     ports:
       - "123:123/udp"   # NTP Port für Client-Zeitabruf
-      - "323:323/tcp"   # Chrony Control Port (für 
-'
-"chronyc"
-'
-)
+      - "323:323/tcp"   # Chrony Control Port (für 'chronyc')
     environment:
       - TZ=Europe/Berlin
     healthcheck:
@@ -68,4 +67,70 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+    volumes:
+      # Mount host chrony config
+      - /etc/chrony/chrony.conf:/etc/chrony/chrony.conf
+      # Data volumes for persistence
+      - chrony_data:/var/lib/chrony
+      - chrony_run:/run/chrony
+
+volumes:
+  chrony_data:
+  chrony_run:
+```
+
+---
+
+## Umgebungsvariablen (Envs)
+
+| Variable | Beschreibung | Standard |
+|----------|--------------|----------|
+| `TZ`     | Zeitzone für den Container | `Europe/Berlin` |
+
+---
+
+## Host-Setup
+
+### Vorbereitung auf dem Host
+
+1. **Installiere Chrony auf dem Host (optional)**:
+```bash
+sudo apt install chrony
+```
+
+2. **Erstelle Konfigurationsverzeichnis und Datei**:
+```bash
+sudo mkdir -p /etc/chrony
+sudo nano /etc/chrony/chrony.conf
+```
+
+3. **Beispiel-Konfiguration** (gleiche wie im Container):
+```conf
+# Host Chrony Config (für Volume Mount)
+local stratum 10
+server 192.168.178.1 iburst prefer
+pool 2.debian.pool.ntp.org iburst
+driftfile /var/lib/chrony/chrony.drift
+logdir /var/log/chrony
+maxupdateskew 100.0
+rtcsync
+makestep 1 3
+leapsectz right/UTC
+noclientlog
+clientloglimit 4194304
+```
+
+### Docker Befehl (ohne Compose)
+
+```bash
+docker run -d \
+  --name hai-chrony \
+  -p 123:123/udp \
+  -p 323:323/tcp \
+  -v /etc/chrony/chrony.conf:/etc/chrony/chrony.conf \
+  -v chrony_data:/var/lib/chrony \
+  -v chrony_run:/run/chrony \
+  -e TZ=Europe/Berlin \
+  --restart unless-stopped \
+  ghcr.io/jbkunama1/haichrony:latest
 ```

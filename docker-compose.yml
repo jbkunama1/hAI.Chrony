@@ -16,6 +16,9 @@ services:
       timeout: 10s
       retries: 3
     volumes:
+      # Mount host chrony config
+      - /etc/chrony/chrony.conf:/etc/chrony/chrony.conf
+      # Data volumes for persistence
       - chrony_data:/var/lib/chrony
       - chrony_run:/run/chrony
 
